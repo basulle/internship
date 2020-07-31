@@ -1,21 +1,21 @@
 import React, { useState, useCallback } from 'react';
 import { TextField, Button } from '@material-ui/core';
-import { Link } from 'react-router-dom';
-// import * as moment from 'moment';
+import { useHistory, Link } from 'react-router-dom';
 import firebase from 'firebase';
-import { Props } from './types';
 import { checkCorrectName } from './checker';
+
 import './styles.css';
 
-const Register = (props: Props): JSX.Element => {
+const Register = (): JSX.Element => {
+  const history = useHistory();
   const [email, setEmail] = useState<string>('');
-
   const [name, setName] = useState<string>('');
   const [nameError, setNameError] = useState<string>('');
   const [secondName, setSecondName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rpassword, setRpassword] = useState<string>('');
   const [birthday, setBirthday] = useState<string>('');
+  const [birthError, setBirthError] = useState<boolean>(false);
 
   const onEmailChange = useCallback(({ target: { value } }) => {
     setEmail(value);
@@ -39,8 +39,13 @@ const Register = (props: Props): JSX.Element => {
   }, []);
 
   const onBirthdayChange = useCallback(({ target: { value } }) => {
+    getCurrentAge(value) < 18 ? setBirthError(true) : setBirthError(false);
     setBirthday(value);
   }, []);
+
+  const getCurrentAge = (date: string) => {
+    return (new Date().getTime() - new Date(date).getTime()) / (24 * 3600 * 365.25 * 1000);
+  };
 
   const register = useCallback(() => {
     firebase
@@ -48,12 +53,13 @@ const Register = (props: Props): JSX.Element => {
       .createUserWithEmailAndPassword(email, password)
       .then((res) => {
         firebase.database().ref().child('users').child(res.user.uid).set({ email, name, secondName, birthday });
-      });
-  }, [email, password, name, secondName, birthday]);
+      })
+      .then(() => history.push('/'));
+  }, [email, password, name, secondName, birthday, history]);
 
   return (
     <div className="container">
-      <h1>Registration {birthday}</h1>
+      <h1>Registration</h1>
       <TextField
         id="standard-name"
         label="Эл. почта"
@@ -105,9 +111,11 @@ const Register = (props: Props): JSX.Element => {
         InputLabelProps={{
           shrink: true,
         }}
-        defaultValue="2020-05-27"
+        defaultValue="1999-04-25"
         onChange={onBirthdayChange}
+        error={!!birthError}
       />
+      {!!birthError && <p className="error">{'<18 years old'}</p>}
       <div className="button">
         <Button variant="contained" color="primary" onClick={register}>
           Register
@@ -124,5 +132,3 @@ const Register = (props: Props): JSX.Element => {
 };
 
 export default Register;
-
-// new ((Date().getTime() - new Date(value)) / (24 * 3600 * 365.25 * 1000))() | 0

@@ -5,6 +5,7 @@ import Register from './pages/Register/Register';
 import Login from './pages/Login/Login';
 import Confirm from './pages/Confirm/Confirm';
 import Home from './pages/Home/Home';
+import Graph from './pages/Graph/Graph';
 
 const App = (): JSX.Element => {
   return (
@@ -15,6 +16,7 @@ const App = (): JSX.Element => {
         <Route path="/login" component={Login} />
         <Route path="/home" component={Home} />
         <Route path="/confirm" component={Confirm} />
+        <Route path="/graphs" component={Graph} />
       </Switch>
     </Router>
   );

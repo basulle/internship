@@ -2,12 +2,12 @@ import React, { useCallback, useState } from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import { TextField, Button } from '@material-ui/core';
 import firebase from 'firebase';
-import { useSelector, useDispatch } from 'react-redux';
-import { signInAction } from '../../core/actions/signInAction';
-import { testState } from '../../core/selectors/signIn';
+import { useDispatch } from 'react-redux';
+import { signInAction, thunkTest } from '../../core/actions/signInAction';
+// import { testState } from '../../core/selectors/signIn';
 
 const Login = (): JSX.Element => {
-  const test = useSelector(testState);
+  // const test = useSelector(testState);
   const dispatch = useDispatch();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -16,7 +16,9 @@ const Login = (): JSX.Element => {
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => dispatch(signInAction('')))
+      .then(() => {
+        dispatch(thunkTest(firebase.auth().currentUser.uid));
+      })
       .then(() => history.push('/'));
   }, [email, password, history, dispatch]);
 

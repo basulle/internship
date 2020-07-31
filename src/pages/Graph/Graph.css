@@ -1,0 +1,9 @@
+canvas {
+  border: 1px dashed black;
+}
+
+.controller {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 15px;
+}

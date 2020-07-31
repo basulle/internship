@@ -14,3 +14,13 @@
   border: 2px solid #fff;
   cursor: pointer;
 }
+
+.info {
+  margin-top: 25px;
+  flex-direction: column;
+  margin-bottom: 25px;
+}
+
+.info div {
+  margin-top: 15px;
+}

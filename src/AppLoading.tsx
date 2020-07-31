@@ -2,8 +2,6 @@ import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import firebase from 'firebase';
 import { useDispatch } from 'react-redux';
-import { signInAction } from './core/actions/signInAction';
-import { testState } from './core/selectors/signIn';
 
 const AppLoading = (): JSX.Element => {
   const dispatch = useDispatch();
@@ -12,7 +10,6 @@ const AppLoading = (): JSX.Element => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         if (user.emailVerified) {
-          dispatch(signInAction(user.uid));
           history.push('/home');
         } else {
           user.sendEmailVerification();

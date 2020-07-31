@@ -1,14 +1,20 @@
 import { SIGNED_IN } from '../types/signIn';
-import { SignInAction } from '../interfaces/signInAction';
+import { SignInAction, UserInterface } from '../interfaces/signInAction';
 
 export interface State {
   test: boolean;
-  payload: string;
+  user: UserInterface;
 }
 
 const initialState = {
   test: false,
-  payload: '',
+  user: {
+    uid: '',
+    email: '',
+    name: '',
+    secondName: '',
+    birthday: '',
+  },
 };
 
 export const reducer = (state: State = initialState, action: SignInAction): State => {
@@ -17,7 +23,7 @@ export const reducer = (state: State = initialState, action: SignInAction): Stat
       return {
         ...state,
         test: true,
-        payload: action.payload,
+        user: { ...action.payload },
       };
     default:
       return state;
