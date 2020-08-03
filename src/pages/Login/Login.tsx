@@ -3,8 +3,8 @@ import { useHistory, Link } from 'react-router-dom';
 import { TextField, Button } from '@material-ui/core';
 import firebase from 'firebase';
 import { useDispatch } from 'react-redux';
-import { signInAction, thunkTest } from '../../core/actions/signInAction';
-// import { testState } from '../../core/selectors/signIn';
+import { thunkTest } from '../../core/actions/signInActions';
+import { downloadGraphs } from '../../core/actions/graphInitAction';
 
 const Login = (): JSX.Element => {
   // const test = useSelector(testState);
@@ -17,7 +17,9 @@ const Login = (): JSX.Element => {
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => {
-        dispatch(thunkTest(firebase.auth().currentUser.uid));
+        const user = firebase.auth().currentUser;
+        dispatch(thunkTest(user.uid));
+        dispatch(downloadGraphs(user.uid));
       })
       .then(() => history.push('/'));
   }, [email, password, history, dispatch]);

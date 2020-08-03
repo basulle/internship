@@ -1,12 +1,6 @@
-export interface UserInterface {
-  uid: string;
-  email: string;
-  name: string;
-  secondName: string;
-  birthday: string;
-}
+import { User } from './user';
 
 export interface SignInAction {
   type: string;
-  payload: UserInterface;
+  payload: User;
 }

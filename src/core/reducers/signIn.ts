@@ -1,9 +1,10 @@
-import { SIGNED_IN } from '../types/signIn';
-import { SignInAction, UserInterface } from '../interfaces/signInAction';
+import { SIGNED_IN } from '../types/types';
+import { SignInAction } from '../interfaces/signInAction';
+import { User } from '../interfaces/user';
 
 export interface State {
   test: boolean;
-  user: UserInterface;
+  user: User;
 }
 
 const initialState = {
@@ -14,6 +15,7 @@ const initialState = {
     name: '',
     secondName: '',
     birthday: '',
+    url: '',
   },
 };
 

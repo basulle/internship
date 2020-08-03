@@ -111,7 +111,7 @@ const Register = (): JSX.Element => {
         InputLabelProps={{
           shrink: true,
         }}
-        defaultValue="1999-04-25"
+        value={birthday}
         onChange={onBirthdayChange}
         error={!!birthError}
       />

@@ -13,6 +13,7 @@ const Home = (): JSX.Element => {
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [secondName, setSecondName] = useState<string>('');
+  const [avatar, setAvatar] = useState<string>('');
   const [birthday, setBirthday] = useState<string>('');
 
   useEffect(() => {
@@ -20,6 +21,7 @@ const Home = (): JSX.Element => {
     setSecondName(state.user.secondName);
     setEmail(state.user.email);
     setBirthday(state.user.birthday);
+    setAvatar(state.user.url);
   }, [state]);
 
   const signOut = useCallback(() => {
@@ -80,7 +82,11 @@ const Home = (): JSX.Element => {
         <img
           alt="logo"
           className="logo"
-          src={image || 'https://i.pinimg.com/originals/11/ab/14/11ab147894a7d2ce866ff88a4aa63655.jpg'}
+          src={
+            image ||
+            avatar ||
+            'https://www.clipartmax.com/png/full/103-1038980_bankers-and-professionals-meeting-regularly-for-luncheon-user-flat-icon-png.png'
+          }
         />
       </div>
       {uploaded ? (

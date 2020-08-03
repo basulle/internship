@@ -1,16 +1,7 @@
-export interface PointsInterface {
-  x: number;
-  y: number;
-  id: number;
-}
+import { Line } from './line';
+import { Point } from './point';
 
-export interface MouseInterface {
-  x: number;
-  y: number;
-  down?: boolean;
-}
-
-export interface LinesInterface {
-  id1: number;
-  id2: number;
+export interface Graph {
+  lines: Line[];
+  points: Point[];
 }

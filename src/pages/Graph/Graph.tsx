@@ -1,28 +1,48 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, MenuItem, Select } from '@material-ui/core';
-import firebase from 'firebase';
-import { MouseInterface, PointsInterface, LinesInterface } from '../../core/interfaces/graph';
+import { useSelector } from 'react-redux';
+import { buttonsState } from '../../core/selectors/buttons';
+import { Mouse } from '../../core/interfaces/mouse';
+import { Point } from '../../core/interfaces/point';
+import { Line } from '../../core/interfaces/line';
 import { findPoint } from '../../core/helpers/findPoint';
+import GraphButtons from '../../components/GraphButtons/GraphButtons';
+import { graphs } from '../../core/selectors/graph';
+import { dfs } from './algorithms';
 import './Graph.css';
 
 const Graph = (): JSX.Element => {
-  const canvasRef = React.useRef(null);
-  const [points, setPoints] = useState<PointsInterface[]>([
-    { x: 250, y: 250, id: 0 },
-    { x: 350, y: 350, id: 1 },
-    { x: 450, y: 250, id: 2 },
-  ]);
-  const [lines, setLines] = useState<LinesInterface[]>([
-    { id1: 0, id2: 1 },
-    { id1: 1, id2: 2 },
-  ]);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const [points, setPoints] = useState<Point[]>([]);
+  const [lines, setLines] = useState<Line[]>([]);
+  const allGraphs = useSelector(graphs);
+  const state = useSelector(buttonsState);
   const [counter, setCounter] = useState<number>(points.length);
-  const [mouse, setMouse] = useState<MouseInterface>({ x: 0, y: 0, down: false });
+  const [selectedGraph, setSelectedGraph] = useState<string>('');
+  const [mouse, setMouse] = useState<Mouse>({ x: 0, y: 0, down: false });
   const [move, setMove] = useState<boolean>(true);
   const [draw, setDraw] = useState<boolean>(false);
   const [deleteCircle, setDeleteCircle] = useState<boolean>(false);
   const [connectCircles, setConnectCircles] = useState<boolean>(false);
-  const [movingCircle, setMovingCircle] = useState<PointsInterface>({ x: 0, y: 0, id: -1 });
+  const [movingCircle, setMovingCircle] = useState<Point>({ x: 0, y: 0, id: -1 });
+
+  useEffect(() => {
+    setMove(state.move);
+    setDraw(state.draw);
+    setDeleteCircle(state.deleteCircle);
+    setConnectCircles(state.connectCircles);
+  }, [state]);
+
+  useEffect(() => {
+    if (selectedGraph.length > 3) {
+      setPoints(allGraphs[selectedGraph].points);
+      setLines(allGraphs[selectedGraph].lines);
+      setCounter(allGraphs[selectedGraph].points.length + 1);
+    } else {
+      setPoints([]);
+      setLines([]);
+      setCounter(0);
+    }
+  }, [selectedGraph, allGraphs]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -49,11 +69,11 @@ const Graph = (): JSX.Element => {
     context.fill();
     context.font = '18px serif';
     context.fillStyle = '#000';
-    context.fillText(count, x - 5, y + 5);
+    context.fillText(count.toString(), x - 5, y + 5);
     context.closePath();
   };
 
-  const drawLine = (p1: PointsInterface, p2: PointsInterface) => {
+  const drawLine = (p1: Point, p2: Point) => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     context.globalCompositeOperation = 'destination-over';
@@ -89,15 +109,21 @@ const Graph = (): JSX.Element => {
             setMovingCircle({ x: item.x, y: item.y, id: item.id });
           } else {
             drawLine(movingCircle, { x: item.x, y: item.y, id: item.id });
-            setLines([...lines, { id1: movingCircle.id, id2: item.id }]);
+            if (movingCircle.id < item.id) {
+              setLines([...lines, { id1: movingCircle.id, id2: item.id }]);
+            } else {
+              setLines([...lines, { id1: item.id, id2: movingCircle.id }]);
+            }
             setMovingCircle({ x: 0, y: 0, id: -1 });
           }
-        } else {
+        } else if (move) {
           setMovingCircle({ x: item.x, y: item.y, id: item.id });
+        } else {
+          setMovingCircle({ x: 0, y: 0, id: -1 });
         }
       }
     });
-  }, [mouse, points, connectCircles, movingCircle, lines]);
+  }, [mouse, points, connectCircles, movingCircle, lines, move]);
 
   const handleMouseUp = useCallback(() => {
     if (move) {
@@ -118,7 +144,7 @@ const Graph = (): JSX.Element => {
     if (deleteCircle) {
       points.forEach((item) => {
         if (Math.pow(mouse.x - item.x, 2) + Math.pow(mouse.y - item.y, 2) <= 200) {
-          let deleted: PointsInterface;
+          let deleted: Point;
           setPoints(
             points.filter((point) => {
               if (point.id !== item.id) {
@@ -134,73 +160,40 @@ const Graph = (): JSX.Element => {
     }
   }, [mouse, points, movingCircle, deleteCircle, move, lines]);
 
-  const handleMove = useCallback(() => {
-    setMove(!move);
-    setDraw(false);
-    setDeleteCircle(false);
-    setConnectCircles(false);
-  }, [move]);
+  const linesToAdjacencyMatrix = useCallback(() => {
+    const matrix: number[][] = [];
 
-  const handleDraw = useCallback(() => {
-    setMove(false);
-    setDraw(!draw);
-    setDeleteCircle(false);
-    setConnectCircles(false);
-  }, [draw]);
+    for (let i = 0; i < points.length; i++) {
+      matrix.push([]);
+      for (let j = 0; j < points.length; j++) {
+        matrix[i].push(0);
+      }
+    }
 
-  const handleDelete = useCallback(() => {
-    setMove(false);
-    setDraw(false);
-    setDeleteCircle(!deleteCircle);
-    setConnectCircles(false);
-  }, [deleteCircle]);
-
-  const handleConnect = useCallback(() => {
-    setMovingCircle({ x: 0, y: 0, id: -1 });
-    setMove(false);
-    setDraw(false);
-    setDeleteCircle(false);
-    setConnectCircles(!connectCircles);
-  }, [connectCircles]);
-
-  const handleSaveGraph = useCallback(() => {
-    const user = firebase.auth().currentUser;
-    firebase.database().ref().child('users').child(user.uid).child('graphs').push({
-      points,
-      lines,
-    });
-  }, [points, lines]);
+    let index1;
+    let index2;
+    for (const line of lines) {
+      for (let i = 0; i < points.length; i++) {
+        if (line.id1 === points[i].id) {
+          index1 = i;
+        }
+        if (line.id2 === points[i].id) {
+          index2 = i;
+          matrix[index1][index2] = 1;
+          matrix[index2][index1] = 1;
+        }
+      }
+    }
+    dfs(matrix, 0);
+  }, [lines, points]);
 
   return (
     <div className="container">
       <h1>Graphs</h1>
-      <div className="controller">
-        <Button variant="outlined" onClick={handleMove} color={move ? 'primary' : 'secondary'}>
-          Move
-        </Button>
-        <Button variant="outlined" onClick={handleDraw} color={draw ? 'primary' : 'secondary'}>
-          Add
-        </Button>
-        <Button variant="outlined" onClick={handleDelete} color={deleteCircle ? 'primary' : 'secondary'}>
-          Delete
-        </Button>
-        <Button variant="outlined" onClick={handleConnect} color={connectCircles ? 'primary' : 'secondary'}>
-          Connect
-        </Button>
-        <button type="button" onClick={handleSaveGraph}>
-          save graph
-        </button>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value="10"
-          // onChange={handleChange}
-        >
-          <MenuItem value={10}>Graph 1</MenuItem>
-          <MenuItem value={20}>Graph 2</MenuItem>
-          <MenuItem value={30}>Graph 3</MenuItem>
-        </Select>
-      </div>
+      <button type="button" onClick={linesToAdjacencyMatrix}>
+        test
+      </button>
+      <GraphButtons points={points} lines={lines} setSelectedGraph={setSelectedGraph} selectedGraph={selectedGraph} />
       <canvas
         ref={canvasRef}
         width="1000px"
