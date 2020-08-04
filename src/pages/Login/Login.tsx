@@ -1,27 +1,21 @@
 import React, { useCallback, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useHistory, Link } from 'react-router-dom';
 import { TextField, Button } from '@material-ui/core';
-import firebase from 'firebase';
-import { useDispatch } from 'react-redux';
-import { thunkTest } from '../../core/actions/signInActions';
-import { downloadGraphs } from '../../core/actions/graphInitAction';
+import { signIn } from '../../core/services/auth';
+import { signingIn, signInSuccess } from '../../core/actions/authActions';
 
 const Login = (): JSX.Element => {
-  // const test = useSelector(testState);
   const dispatch = useDispatch();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const history = useHistory();
   const logIn = useCallback(() => {
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        const user = firebase.auth().currentUser;
-        dispatch(thunkTest(user.uid));
-        dispatch(downloadGraphs(user.uid));
-      })
-      .then(() => history.push('/'));
+    dispatch(signingIn());
+    signIn(email, password).then(() => {
+      dispatch(signInSuccess());
+      history.push('/');
+    });
   }, [email, password, history, dispatch]);
 
   const onEmailChange = useCallback(({ target: { value } }) => {

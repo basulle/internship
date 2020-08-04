@@ -1,14 +1,14 @@
-import { SIGNED_IN } from '../types/types';
-import { SignInAction } from '../interfaces/signInAction';
+import { AnyAction } from 'redux';
+import { SIGNING_IN, ERROR_AVATAR, SUCCESS_PROFILE_LOADED } from '../types/auth';
 import { User } from '../interfaces/user';
 
 export interface State {
-  test: boolean;
+  uploaded: boolean;
   user: User;
 }
 
 const initialState = {
-  test: false,
+  uploaded: false,
   user: {
     uid: '',
     email: '',
@@ -19,13 +19,21 @@ const initialState = {
   },
 };
 
-export const reducer = (state: State = initialState, action: SignInAction): State => {
+export const reducer = (state: State = initialState, action: AnyAction): State => {
   switch (action.type) {
-    case SIGNED_IN:
+    case SIGNING_IN:
       return {
         ...state,
-        test: true,
+      };
+    case SUCCESS_PROFILE_LOADED:
+      return {
+        ...state,
+        uploaded: true,
         user: { ...action.payload },
+      };
+    case ERROR_AVATAR:
+      return {
+        ...state,
       };
     default:
       return state;

@@ -16,3 +16,7 @@ export const saveGraph = (points: Point[], lines: Line[], id: string) => {
     lines,
   });
 };
+
+export const downloadGraphs = (uid: string) => {
+  return firebase.database().ref().child('users').child(uid).child('graphs').once('value');
+};

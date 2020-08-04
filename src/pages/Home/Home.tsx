@@ -2,12 +2,18 @@ import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { Input } from '@material-ui/core';
 import './styles.css';
 import firebase from 'firebase';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { testState } from '../../core/selectors/signIn';
+import { useSelector, useDispatch } from 'react-redux';
+import { Link, useHistory } from 'react-router-dom';
+import { userState } from '../../core/selectors/auth';
+import { uploadUserProfile } from '../../core/thunks/authActions';
+import { changeName, changeSecondName } from '../../core/services/updateProfile';
+import { signOut } from '../../core/services/auth';
+import { uploadPhoto } from '../../core/services/uploadPhoto';
 
 const Home = (): JSX.Element => {
-  const state = useSelector(testState);
+  const state = useSelector(userState);
+  const dispatch = useDispatch();
+  const history = useHistory();
   const [image, setImage] = useState<string>();
   const [uploaded, setUploaded] = useState<boolean>(false);
   const [email, setEmail] = useState<string>('');
@@ -17,6 +23,13 @@ const Home = (): JSX.Element => {
   const [birthday, setBirthday] = useState<string>('');
 
   useEffect(() => {
+    if (state.uploaded === false) {
+      const user = firebase.auth().currentUser;
+      dispatch(uploadUserProfile(user.uid));
+    }
+  }, [dispatch, state.uploaded]);
+
+  useEffect(() => {
     setName(state.user.name);
     setSecondName(state.user.secondName);
     setEmail(state.user.email);
@@ -24,9 +37,9 @@ const Home = (): JSX.Element => {
     setAvatar(state.user.url);
   }, [state]);
 
-  const signOut = useCallback(() => {
-    firebase.auth().signOut();
-  }, []);
+  const handleSignOut = useCallback(() => {
+    signOut().then(() => history.push('/'));
+  }, [history]);
 
   const onNameChange = useCallback(({ target: { value } }) => {
     setName(value);
@@ -36,17 +49,15 @@ const Home = (): JSX.Element => {
     setSecondName(value);
   }, []);
 
-  const changeName = useCallback(() => {
-    const user = firebase.auth().currentUser;
-    firebase.database().ref().child('users').child(user.uid).child('name').set(name);
+  const handleChangeName = useCallback(() => {
+    changeName(name);
   }, [name]);
 
-  const changeSecondName = useCallback(() => {
-    const user = firebase.auth().currentUser;
-    firebase.database().ref().child('users').child(user.uid).child('secondName').set(secondName);
+  const handleChangeSecondName = useCallback(() => {
+    changeSecondName(secondName);
   }, [secondName]);
 
-  const selectPhoto = (e: ChangeEvent<HTMLInputElement>) => {
+  const selectPhoto = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement;
     const file: File = (target.files as FileList)[0];
     if (FileReader && file) {
@@ -57,24 +68,12 @@ const Home = (): JSX.Element => {
       fr.readAsDataURL(file);
     }
     setUploaded(true);
-  };
+  }, []);
 
-  const uploadPhoto = async () => {
-    const user = firebase.auth().currentUser;
-    const response = await fetch(image);
-    const blob = await response.blob();
-    firebase
-      .storage()
-      .ref()
-      .child('avatars')
-      .child(user.uid)
-      .put(blob)
-      .then(() => setUploaded(false));
-  };
+  const handleUploadPhoto = useCallback(() => {
+    uploadPhoto(image).then(() => setUploaded(false));
+  }, [image]);
 
-  // if (!state.test) {
-  //   return <Redirect to="/login" />;
-  // }
   return (
     <div className="container">
       <h1>Home Page</h1>
@@ -90,7 +89,7 @@ const Home = (): JSX.Element => {
         />
       </div>
       {uploaded ? (
-        <button type="button" onClick={uploadPhoto}>
+        <button type="button" onClick={handleUploadPhoto}>
           upload photo
         </button>
       ) : (
@@ -103,14 +102,14 @@ const Home = (): JSX.Element => {
         <div>
           Name:
           <Input value={name} inputProps={{ 'aria-label': 'description' }} onChange={onNameChange} />
-          <button type="button" onClick={changeName}>
+          <button type="button" onClick={handleChangeName}>
             Change name
           </button>
         </div>
         <div>
           Second Name:
           <Input value={secondName} inputProps={{ 'aria-label': 'description' }} onChange={onSecondNameChange} />
-          <button type="button" onClick={changeSecondName}>
+          <button type="button" onClick={handleChangeSecondName}>
             Change second name
           </button>
         </div>
@@ -119,7 +118,7 @@ const Home = (): JSX.Element => {
         </div>
       </div>
       <div>
-        <button type="button" onClick={signOut}>
+        <button type="button" onClick={handleSignOut}>
           Exit
         </button>
         <button type="button">

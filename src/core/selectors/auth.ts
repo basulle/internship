@@ -4,5 +4,5 @@ import { AppState } from '../reducers';
 
 const signInState = (state: AppState): signIn.State => state.signInState;
 
-export const testState = createSelector(signInState, (state) => state);
-export const userExist = createSelector(signInState, (state) => state.test);
+export const userState = createSelector(signInState, (state) => state);
+export const userExist = createSelector(signInState, (state) => state.uploaded);

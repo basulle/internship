@@ -1,0 +1,5 @@
+export const SIGNING_IN = 'SIGNING_IN';
+export const ERROR_AVATAR = 'ERROR_AVATAR';
+export const SUCCESS_PROFILE_LOADED = 'SUCCESS_PROFILE_LOADED';
+export const ERROR_SIGN_IN = 'ERROR_SIGN_IN';
+export const SUCCESS_SIGN_IN = 'SUCCESS_SIGN_IN';

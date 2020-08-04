@@ -37,6 +37,7 @@ export const dfs = (graph: number[][], root: number) => {
   }
   let r;
   function worker(st: number) {
+    console.log(st);
     visited[st] = true;
     for (r = 0; r <= graph.length; r += 1) {
       if (graph[st][r] !== 0 && !visited[r]) {

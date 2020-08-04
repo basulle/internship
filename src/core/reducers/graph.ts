@@ -1,4 +1,5 @@
-import { GRAPH_INIT } from '../types/types';
+import { AnyAction } from 'redux';
+import { INIT_GRAPH, SUCCESS_SAVE_GRAPH } from '../types/graph';
 import { Graph } from '../interfaces/graph';
 
 export interface State {
@@ -11,14 +12,14 @@ const initialState = {
   graphs: {},
 };
 
-export const reducer = (state: State = initialState, action: any): State => {
+export const reducer = (state: State = initialState, action: AnyAction): State => {
   switch (action.type) {
-    case GRAPH_INIT:
+    case INIT_GRAPH:
       return {
         ...state,
         graphs: { ...action.payload },
       };
-    case 'SUCCESS_GRAPH':
+    case SUCCESS_SAVE_GRAPH:
       return {
         ...state,
         graphs: {
