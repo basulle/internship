@@ -1,5 +1,5 @@
 import { AnyAction } from 'redux';
-import { INIT_GRAPH, SUCCESS_SAVE_GRAPH } from '../types/graph';
+import { INIT_GRAPH, SUCCESS_SAVE_GRAPH, SUCCESS_DELETE_GRAPH } from '../types/graph';
 import { Graph } from '../interfaces/graph';
 
 export interface State {
@@ -27,6 +27,13 @@ export const reducer = (state: State = initialState, action: AnyAction): State =
           [action.payload.id]: action.payload.graph,
         },
       };
+    // case SUCCESS_DELETE_GRAPH:
+    //   const nextState = { ...state };
+    //   delete nextState.graphs[action.payload.id];
+    //   return { ...nextState };
+    case SUCCESS_DELETE_GRAPH:
+      delete state.graphs[action.payload.id];
+      return state;
     default:
       return state;
   }

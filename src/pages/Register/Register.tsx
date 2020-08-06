@@ -1,21 +1,25 @@
 import React, { useState, useCallback } from 'react';
 import { TextField, Button } from '@material-ui/core';
 import { useHistory, Link } from 'react-router-dom';
-import firebase from 'firebase';
+import { useDispatch } from 'react-redux';
 import { checkCorrectName } from './checker';
-
+import { register } from '../../core/services/auth';
 import './styles.css';
+import { registerError, register as registerStart, registerSuccess } from '../../core/actions/authActions';
 
 const Register = (): JSX.Element => {
   const history = useHistory();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [nameError, setNameError] = useState<string>('');
+  const [secondNameError, setsecondNameError] = useState<string>('');
   const [secondName, setSecondName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rpassword, setRpassword] = useState<string>('');
   const [birthday, setBirthday] = useState<string>('');
   const [birthError, setBirthError] = useState<boolean>(false);
+  const [regError, setRegError] = useState<string>('');
 
   const onEmailChange = useCallback(({ target: { value } }) => {
     setEmail(value);
@@ -27,6 +31,7 @@ const Register = (): JSX.Element => {
   }, []);
 
   const onSecondNameChange = useCallback(({ target: { value } }) => {
+    setsecondNameError(checkCorrectName('Фамилия', value));
     setSecondName(value);
   }, []);
 
@@ -47,15 +52,46 @@ const Register = (): JSX.Element => {
     return (new Date().getTime() - new Date(date).getTime()) / (24 * 3600 * 365.25 * 1000);
   };
 
-  const register = useCallback(() => {
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then((res) => {
-        firebase.database().ref().child('users').child(res.user.uid).set({ email, name, secondName, birthday });
-      })
-      .then(() => history.push('/'));
-  }, [email, password, name, secondName, birthday, history]);
+  const handleRegister = useCallback(() => {
+    setRegError('');
+    if (password !== rpassword) {
+      setRegError('Пароли не совпадают.');
+    }
+    if (name.length === 0) {
+      setNameError('Введите свое Имя.');
+    }
+    if (secondName.length === 0) {
+      setSecondName('Введите свою Фамилию.');
+    }
+    if (birthday.length === 0) {
+      setBirthError(true);
+    }
+
+    if (!nameError && !secondNameError && !birthError && password === rpassword) {
+      dispatch(registerStart());
+      register(email, password, name, secondName, birthday)
+        .then(() => {
+          dispatch(registerSuccess());
+          history.push('/');
+        })
+        .catch((error) => {
+          dispatch(registerError());
+          setRegError(error.message);
+        });
+    }
+  }, [
+    email,
+    password,
+    name,
+    secondName,
+    birthday,
+    history,
+    rpassword,
+    nameError,
+    secondNameError,
+    birthError,
+    dispatch,
+  ]);
 
   return (
     <div className="container">
@@ -84,8 +120,10 @@ const Register = (): JSX.Element => {
         variant="outlined"
         margin="normal"
         value={secondName}
+        error={!!secondNameError}
         onChange={onSecondNameChange}
       />
+      {!!secondNameError && <p className="error">{secondNameError}</p>}
       <TextField
         id="standard-name"
         type="password"
@@ -117,10 +155,11 @@ const Register = (): JSX.Element => {
       />
       {!!birthError && <p className="error">{'<18 years old'}</p>}
       <div className="button">
-        <Button variant="contained" color="primary" onClick={register}>
+        <Button variant="contained" color="primary" onClick={handleRegister}>
           Register
         </Button>
       </div>
+      {regError}
       <h4>
         {'Уже имеется аккаунт? '}
         <Link to="/login" style={{ textDecoration: 'none' }}>

@@ -1,33 +1,30 @@
-interface Node {
-  [key: string]: number;
-}
+import { Point } from '../../core/interfaces/point';
+import { Line } from '../../core/interfaces/line';
 
-export const bfs = (graph: number[][], root: number) => {
-  const nodesLen: Node = {};
-  for (let i = 0; i < graph.length; i++) {
-    nodesLen[i] = Infinity;
-  }
-  nodesLen[root] = 0;
-  const queue = [root];
-  let current;
-
-  while (queue.length !== 0) {
-    current = queue.shift();
-    const curConnected = graph[current];
-    const neighborIdx = [];
-    let idx = curConnected.indexOf(1);
-    while (idx !== -1) {
-      neighborIdx.push(idx);
-      idx = curConnected.indexOf(1, idx + 1);
+export const linesToAdjacencyMatrix = (points: Point[], lines: Line[]) => {
+  const matrix: number[][] = [];
+  for (let i = 0; i < points.length; i++) {
+    matrix.push([]);
+    for (let j = 0; j < points.length; j++) {
+      matrix[i].push(0);
     }
-    for (let j = 0; j < neighborIdx.length; j++) {
-      if (nodesLen[neighborIdx[j]] === Infinity) {
-        nodesLen[neighborIdx[j]] = nodesLen[current] + 1;
-        queue.push(neighborIdx[j]);
+  }
+
+  let index1;
+  let index2;
+  for (const line of lines) {
+    for (let i = 0; i < points.length; i++) {
+      if (line.id1 === points[i].id) {
+        index1 = i;
+      }
+      if (line.id2 === points[i].id) {
+        index2 = i;
+        matrix[index1][index2] = 1;
+        matrix[index2][index1] = 1;
       }
     }
   }
-  return nodesLen;
+  return matrix;
 };
 
 export const dfs = (graph: number[][], root: number) => {
@@ -35,15 +32,47 @@ export const dfs = (graph: number[][], root: number) => {
   for (let i = 0; i < graph.length; i += 1) {
     visited.push(false);
   }
-  let r;
+  const result: number[] = [];
   function worker(st: number) {
-    console.log(st);
+    result.push(st);
     visited[st] = true;
-    for (r = 0; r <= graph.length; r += 1) {
-      if (graph[st][r] !== 0 && !visited[r]) {
+    for (let r = 0; r < graph.length; r++) {
+      if (!visited[r] && graph[st][r] === 1) {
         worker(r);
       }
     }
   }
   worker(root);
+  return result;
+};
+
+export const bfs = (graph: number[][], root: number) => {
+  const visited: boolean[] = [];
+  for (let i = 0; i < graph.length; i++) {
+    visited.push(false);
+  }
+  const result: number[] = [];
+  const queue: number[] = [];
+  let unit = root;
+  let count = 0;
+  let head = 0;
+  for (let i = 0; i < graph.length; i++) {
+    queue.push(0);
+  }
+  queue[count] = unit;
+  count += 1;
+  visited[unit] = true;
+  while (head < count) {
+    unit = queue[head];
+    head += 1;
+    result.push(unit);
+    for (let i = 0; i < graph.length; i++) {
+      if (graph[unit][i] && !visited[i]) {
+        queue[count] = i;
+        count += 1;
+        visited[i] = true;
+      }
+    }
+  }
+  return result;
 };

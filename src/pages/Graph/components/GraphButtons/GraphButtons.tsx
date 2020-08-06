@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { graphs } from '../../../../core/selectors/graph';
 import { Props } from './types';
-import { saveGraph } from '../../../../core/thunks/grapActions';
+import { saveGraph, deleteGraph } from '../../../../core/thunks/graph';
 
 const GraphButtons = ({
   points,
@@ -71,8 +71,14 @@ const GraphButtons = ({
   );
 
   const handleSaveGraph = useCallback(() => {
-    dispatch(saveGraph(points, lines, selectedGraph));
+    if (points.length > 0 && lines.length > 0) {
+      dispatch(saveGraph(points, lines, selectedGraph));
+    }
   }, [dispatch, points, lines, selectedGraph]);
+
+  const handleDeleteGraph = useCallback(() => {
+    dispatch(deleteGraph(selectedGraph));
+  }, [selectedGraph, dispatch]);
 
   return (
     <div className="controller">
@@ -99,6 +105,11 @@ const GraphButtons = ({
           </MenuItem>
         ))}
       </Select>
+      {selectedGraph !== 'new' ? (
+        <button type="button" onClick={handleDeleteGraph}>
+          delete graph
+        </button>
+      ) : null}
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
@@ -109,11 +120,9 @@ const GraphButtons = ({
         <MenuItem value="bfs">bfs</MenuItem>
         <MenuItem value="dfs">dfs</MenuItem>
       </Select>
-      <button type="button">
-        <Link to="/home" style={{ textDecoration: 'none' }}>
-          Home
-        </Link>
-      </button>
+      <Link to="/home" style={{ textDecoration: 'none' }}>
+        <button type="button">Home</button>
+      </Link>
     </div>
   );
 };

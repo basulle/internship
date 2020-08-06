@@ -7,8 +7,8 @@ import { Line } from '../../core/interfaces/line';
 import { findPoint } from '../../core/helpers/findPoint';
 import GraphButtons from './components/GraphButtons/GraphButtons';
 import { graphs } from '../../core/selectors/graph';
-import { bfs, dfs } from './algorithms';
-import { downloadGraphs } from '../../core/thunks/grapActions';
+import { bfs, dfs, linesToAdjacencyMatrix } from './algorithms';
+import { downloadGraphs } from '../../core/thunks/graph';
 import { drawCircle, drawLine } from '../../core/helpers/canvas';
 import './styles.css';
 
@@ -24,18 +24,12 @@ const Graph = (): JSX.Element => {
   const [mouse, setMouse] = useState<Mouse>({ x: 0, y: 0, down: false });
   const [movingCircle, setMovingCircle] = useState<Point>({ x: 0, y: 0, id: -1 });
   const [controlButton, setControlButton] = useState<string>('move');
+  const [algorithmResult, setAlgorithmResult] = useState<number[]>([]);
 
   useEffect(() => {
     const user = firebase.auth().currentUser;
     dispatch(downloadGraphs(user.uid));
   }, [dispatch]);
-
-  // useEffect(() => {
-  //   setMove(buttons.move);
-  //   setDraw(buttons.draw);
-  //   setDeleteCircle(buttons.deleteCircle);
-  //   setConnectCircles(buttons.connectCircles);
-  // }, [buttons]);
 
   useEffect(() => {
     if (selectedGraph.length > 4) {
@@ -135,44 +129,21 @@ const Graph = (): JSX.Element => {
     }
   }, [mouse, points, movingCircle, lines, controlButton]);
 
-  const linesToAdjacencyMatrix = useCallback(() => {
-    const matrix: number[][] = [];
-
-    for (let i = 0; i < points.length; i++) {
-      matrix.push([]);
-      for (let j = 0; j < points.length; j++) {
-        matrix[i].push(0);
+  const handleAlgoritmStart = useCallback(() => {
+    const matrix = linesToAdjacencyMatrix(points, lines);
+    if (matrix.length > 0) {
+      if (algorithm === 'bfs') {
+        setAlgorithmResult(bfs(matrix, 0).map((item) => points[item].id));
       }
-    }
-
-    let index1;
-    let index2;
-    for (const line of lines) {
-      for (let i = 0; i < points.length; i++) {
-        if (line.id1 === points[i].id) {
-          index1 = i;
-        }
-        if (line.id2 === points[i].id) {
-          index2 = i;
-          matrix[index1][index2] = 1;
-          matrix[index2][index1] = 1;
-        }
+      if (algorithm === 'dfs') {
+        setAlgorithmResult(dfs(matrix, 0).map((item) => points[item].id));
       }
-    }
-    if (algorithm === 'bfs') {
-      console.log(bfs(matrix, 0));
-    }
-    if (algorithm === 'dfs') {
-      console.log(dfs(matrix, 0));
     }
   }, [lines, points, algorithm]);
 
   return (
     <div className="container">
       <h1>Graphs</h1>
-      <button type="button" onClick={linesToAdjacencyMatrix}>
-        test
-      </button>
       <GraphButtons
         points={points}
         lines={lines}
@@ -183,6 +154,12 @@ const Graph = (): JSX.Element => {
         setControlButton={setControlButton}
         controlButton={controlButton}
       />
+      {algorithm.length < 7 ? (
+        <button type="button" onClick={handleAlgoritmStart}>
+          Start the algorithm!
+        </button>
+      ) : null}
+      {algorithmResult}
       <canvas
         ref={canvasRef}
         width="1000px"

@@ -5,10 +5,10 @@ import firebase from 'firebase';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
 import { userState } from '../../core/selectors/auth';
-import { uploadUserProfile } from '../../core/thunks/authActions';
-import { changeName, changeSecondName } from '../../core/services/updateProfile';
+import { uploadUserProfile } from '../../core/thunks/auth';
+import { changeName, changeSecondName } from '../../core/services/profile';
 import { signOut } from '../../core/services/auth';
-import { uploadPhoto } from '../../core/services/uploadPhoto';
+import { uploadPhoto } from '../../core/services/profile';
 
 const Home = (): JSX.Element => {
   const state = useSelector(userState);

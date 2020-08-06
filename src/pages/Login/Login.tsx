@@ -3,18 +3,25 @@ import { useDispatch } from 'react-redux';
 import { useHistory, Link } from 'react-router-dom';
 import { TextField, Button } from '@material-ui/core';
 import { signIn } from '../../core/services/auth';
-import { signingIn, signInSuccess } from '../../core/actions/authActions';
+import { signingIn, signInSuccess, signInError } from '../../core/actions/authActions';
 
 const Login = (): JSX.Element => {
   const dispatch = useDispatch();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const history = useHistory();
   const logIn = useCallback(() => {
     dispatch(signingIn());
-    signIn(email, password).then(() => {
-      dispatch(signInSuccess());
-      history.push('/');
+    setError('');
+    signIn(email, password).then((err) => {
+      if (err.message) {
+        setError(err.message);
+        dispatch(signInError());
+      } else if (!err.message) {
+        dispatch(signInSuccess());
+        history.push('/');
+      }
     });
   }, [email, password, history, dispatch]);
 
@@ -51,6 +58,7 @@ const Login = (): JSX.Element => {
           Login
         </Button>
       </div>
+      {error}
       <h4>
         {'Нет аккаунта? '}
         <Link to="/register" style={{ textDecoration: 'none' }}>

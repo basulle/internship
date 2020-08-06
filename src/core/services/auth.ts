@@ -5,5 +5,17 @@ export const signOut = () => {
 };
 
 export const signIn = (email: string, password: string) => {
-  return firebase.auth().signInWithEmailAndPassword(email, password);
+  return firebase
+    .auth()
+    .signInWithEmailAndPassword(email, password)
+    .catch((error) => error);
+};
+
+export const register = (email: string, password: string, name: string, secondName: string, birthday: string) => {
+  return firebase
+    .auth()
+    .createUserWithEmailAndPassword(email, password)
+    .then((res) => {
+      firebase.database().ref().child('users').child(res.user.uid).set({ email, name, secondName, birthday });
+    });
 };
