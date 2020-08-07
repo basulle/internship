@@ -4,14 +4,15 @@ import { Line } from '../interfaces/line';
 
 export const saveGraph = (points: Point[], lines: Line[], id: string) => {
   const user = firebase.auth().currentUser;
-  const link = firebase.database().ref().child('users').child(user.uid).child('graphs');
-  if (id.length > 3) {
-    return link.child(id).set({
-      points,
-      lines,
-    });
-  }
-  return link.push({
+  return firebase.database().ref().child('users').child(user.uid).child('graphs').child(id).set({
+    points,
+    lines,
+  });
+};
+
+export const createGraph = (points: Point[], lines: Line[]) => {
+  const user = firebase.auth().currentUser;
+  return firebase.database().ref().child('users').child(user.uid).child('graphs').push({
     points,
     lines,
   });

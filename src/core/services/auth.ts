@@ -5,10 +5,7 @@ export const signOut = () => {
 };
 
 export const signIn = (email: string, password: string) => {
-  return firebase
-    .auth()
-    .signInWithEmailAndPassword(email, password)
-    .catch((error) => error);
+  return firebase.auth().signInWithEmailAndPassword(email, password);
 };
 
 export const register = (email: string, password: string, name: string, secondName: string, birthday: string) => {

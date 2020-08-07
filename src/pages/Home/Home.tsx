@@ -1,17 +1,15 @@
 import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
-import { Input } from '@material-ui/core';
+import { Input, CircularProgress } from '@material-ui/core';
 import './styles.css';
-import firebase from 'firebase';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
-import { userState } from '../../core/selectors/auth';
-import { uploadUserProfile } from '../../core/thunks/auth';
-import { changeName, changeSecondName } from '../../core/services/profile';
-import { signOut } from '../../core/services/auth';
-import { uploadPhoto } from '../../core/services/profile';
+import { selectProfileState } from '../../core/selectors/profile';
+import { loadAvatar, loadProfile, changeName, changeSecondName, uploadPhoto } from '../../core/thunks/profile';
+
+import { signOut } from '../../core/thunks/auth';
 
 const Home = (): JSX.Element => {
-  const state = useSelector(userState);
+  const state = useSelector(selectProfileState);
   const dispatch = useDispatch();
   const history = useHistory();
   const [image, setImage] = useState<string>();
@@ -21,25 +19,25 @@ const Home = (): JSX.Element => {
   const [secondName, setSecondName] = useState<string>('');
   const [avatar, setAvatar] = useState<string>('');
   const [birthday, setBirthday] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (state.uploaded === false) {
-      const user = firebase.auth().currentUser;
-      dispatch(uploadUserProfile(user.uid));
-    }
-  }, [dispatch, state.uploaded]);
+    dispatch(loadAvatar());
+    dispatch(loadProfile());
+  }, [dispatch]);
 
   useEffect(() => {
     setName(state.user.name);
     setSecondName(state.user.secondName);
     setEmail(state.user.email);
     setBirthday(state.user.birthday);
-    setAvatar(state.user.url);
+    setAvatar(state.avatarUrl);
+    setIsLoading(state.isLoading);
   }, [state]);
 
   const handleSignOut = useCallback(() => {
-    signOut().then(() => history.push('/'));
-  }, [history]);
+    dispatch(signOut(history));
+  }, [dispatch, history]);
 
   const onNameChange = useCallback(({ target: { value } }) => {
     setName(value);
@@ -50,12 +48,12 @@ const Home = (): JSX.Element => {
   }, []);
 
   const handleChangeName = useCallback(() => {
-    changeName(name);
-  }, [name]);
+    dispatch(changeName(name));
+  }, [name, dispatch]);
 
   const handleChangeSecondName = useCallback(() => {
-    changeSecondName(secondName);
-  }, [secondName]);
+    dispatch(changeSecondName(secondName));
+  }, [secondName, dispatch]);
 
   const selectPhoto = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement;
@@ -71,12 +69,18 @@ const Home = (): JSX.Element => {
   }, []);
 
   const handleUploadPhoto = useCallback(() => {
-    uploadPhoto(image).then(() => setUploaded(false));
-  }, [image]);
+    dispatch(uploadPhoto(image));
+    setUploaded(false);
+  }, [image, dispatch]);
 
   return (
     <div className="container">
       <h1>Home Page</h1>
+      {isLoading ? (
+        <div className="loader">
+          <CircularProgress color="secondary" size="6rem" />
+        </div>
+      ) : null}
       <div>
         <img
           alt="logo"
@@ -96,36 +100,34 @@ const Home = (): JSX.Element => {
         <input type="file" onChange={selectPhoto} accept="image/*" />
       )}
       <div className="info">
-        <div>
-          Email: <Input value={email} disabled inputProps={{ 'aria-label': 'description' }} />
+        <div className="infoRow">
+          <h4>Email:</h4> <Input value={email} disabled inputProps={{ 'aria-label': 'description' }} />
         </div>
-        <div>
-          Name:
+        <div className="infoRow">
+          <h4>Name:</h4>
           <Input value={name} inputProps={{ 'aria-label': 'description' }} onChange={onNameChange} />
           <button type="button" onClick={handleChangeName}>
-            Change name
+            <img src="https://img.icons8.com/ultraviolet/20/000000/edit-property.png" alt="Name" />
           </button>
         </div>
-        <div>
-          Second Name:
+        <div className="infoRow">
+          <h4>Second Name:</h4>
           <Input value={secondName} inputProps={{ 'aria-label': 'description' }} onChange={onSecondNameChange} />
           <button type="button" onClick={handleChangeSecondName}>
-            Change second name
+            <img src="https://img.icons8.com/ultraviolet/20/000000/edit-property.png" alt="SecondName" />
           </button>
         </div>
-        <div>
-          Birthday: <Input value={birthday} disabled inputProps={{ 'aria-label': 'description' }} />
+        <div className="infoRow">
+          <h4>Birthday:</h4> <Input value={birthday} disabled inputProps={{ 'aria-label': 'description' }} />
         </div>
       </div>
       <div>
         <button type="button" onClick={handleSignOut}>
           Exit
         </button>
-        <button type="button">
-          <Link to="/graphs" style={{ textDecoration: 'none' }}>
-            Graphs
-          </Link>
-        </button>
+        <Link to="/graphs" style={{ textDecoration: 'none' }}>
+          <button type="button">Graphs</button>
+        </Link>
       </div>
     </div>
   );

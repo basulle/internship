@@ -1,40 +1,76 @@
 import { AnyAction } from 'redux';
-import { INIT_GRAPH, SUCCESS_SAVE_GRAPH, SUCCESS_DELETE_GRAPH } from '../types/graph';
+import { handleActions } from 'redux-actions';
+import { GraphActionTypes } from '../actions/graph';
 import { Graph } from '../interfaces/graph';
 
 export interface State {
   graphs: {
     [id: string]: Graph;
   };
+  isLoading: boolean;
 }
 
 const initialState = {
   graphs: {},
+  isLoading: false,
 };
 
-export const reducer = (state: State = initialState, action: AnyAction): State => {
-  switch (action.type) {
-    case INIT_GRAPH:
-      return {
-        ...state,
-        graphs: { ...action.payload },
-      };
-    case SUCCESS_SAVE_GRAPH:
-      return {
-        ...state,
-        graphs: {
-          ...state.graphs,
-          [action.payload.id]: action.payload.graph,
-        },
-      };
-    // case SUCCESS_DELETE_GRAPH:
-    //   const nextState = { ...state };
-    //   delete nextState.graphs[action.payload.id];
-    //   return { ...nextState };
-    case SUCCESS_DELETE_GRAPH:
-      delete state.graphs[action.payload.id];
-      return state;
-    default:
-      return state;
-  }
-};
+export const reducer = handleActions<State>(
+  {
+    [GraphActionTypes.INIT_GRAPH]: (state: State) => ({
+      ...state,
+      isLoading: true,
+    }),
+    [GraphActionTypes.SUCCESS_INIT_GRAPH]: (state: State, action: AnyAction) => ({
+      ...state,
+      graphs: { ...action.payload },
+      isLoading: false,
+    }),
+    [GraphActionTypes.ERROR_INIT_GRAPH]: (state: State) => ({
+      ...state,
+      isLoading: false,
+    }),
+    [GraphActionTypes.SAVE_GRAPH]: (state: State) => ({
+      ...state,
+      isLoading: true,
+    }),
+    [GraphActionTypes.SUCCESS_SAVE_GRAPH]: (state: State, action: AnyAction) => ({
+      ...state,
+      isLoading: false,
+    }),
+    [GraphActionTypes.ERROR_SAVE_GRAPH]: (state: State) => ({
+      ...state,
+      isLoading: false,
+    }),
+    [GraphActionTypes.CREATE_GRAPH]: (state: State) => ({
+      ...state,
+      isLoading: true,
+    }),
+    [GraphActionTypes.SUCCESS_CREATE_GRAPH]: (state: State, action: AnyAction) => ({
+      ...state,
+      graphs: {
+        ...state.graphs,
+        [action.payload.id]: action.payload.graph,
+      },
+      isLoading: false,
+    }),
+    [GraphActionTypes.ERROR_CREATE_GRAPH]: (state: State) => ({
+      ...state,
+      isLoading: false,
+    }),
+    [GraphActionTypes.DELETE_GRAPH]: (state: State) => ({
+      ...state,
+      isLoading: true,
+    }),
+    [GraphActionTypes.SUCCESS_DELETE_GRAPH]: (state: State, action: AnyAction) => {
+      const nextState = { ...state };
+      delete nextState.graphs[action.payload.id];
+      return { ...nextState, isLoading: false };
+    },
+    [GraphActionTypes.ERROR_DELETE_GRAPH]: (state: State) => ({
+      ...state,
+      isLoading: false,
+    }),
+  },
+  initialState
+);

@@ -4,4 +4,5 @@ import { AppState } from '../reducers';
 
 const graphState = (state: AppState): graph.State => state.graphState;
 
-export const graphs = createSelector(graphState, (state) => state.graphs);
+export const selectGraphsState = createSelector(graphState, (state) => state.graphs);
+export const selectIsLoadingState = createSelector(graphState, (state) => state.isLoading);

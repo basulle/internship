@@ -10,4 +10,5 @@ export interface Props {
   selectedAlgorithm: string;
   setControlButton: React.Dispatch<React.SetStateAction<string>>;
   controlButton: string;
+  setAlgorithmResult: React.Dispatch<React.SetStateAction<number[]>>;
 }

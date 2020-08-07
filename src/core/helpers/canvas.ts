@@ -7,11 +7,12 @@ export const drawCircle = (
   sAngle: number,
   eAngle: number,
   count: number,
-  canvasRef: React.MutableRefObject<HTMLCanvasElement>
+  canvasRef: React.MutableRefObject<HTMLCanvasElement>,
+  color: string
 ) => {
   const context = canvasRef.current.getContext('2d');
   context.strokeStyle = '#000';
-  context.fillStyle = '#fc0';
+  context.fillStyle = color;
   context.globalCompositeOperation = 'source-over';
   context.lineWidth = 1;
   context.beginPath();
@@ -24,10 +25,11 @@ export const drawCircle = (
   context.closePath();
 };
 
-export const drawLine = (p1: Point, p2: Point, canvasRef: React.MutableRefObject<HTMLCanvasElement>) => {
+export const drawLine = (p1: Point, p2: Point, canvasRef: React.MutableRefObject<HTMLCanvasElement>, color: string) => {
   const context = canvasRef.current.getContext('2d');
   context.globalCompositeOperation = 'destination-over';
-  context.strokeStyle = '#fc0';
+  context.strokeStyle = color;
+  // context.fillStyle = color;
   context.beginPath();
   context.moveTo(p1.x, p1.y);
   context.lineTo(p2.x, p2.y);

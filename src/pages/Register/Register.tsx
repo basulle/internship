@@ -1,14 +1,16 @@
-import React, { useState, useCallback } from 'react';
-import { TextField, Button } from '@material-ui/core';
+import React, { useState, useCallback, useEffect } from 'react';
+import { TextField, Button, CircularProgress } from '@material-ui/core';
 import { useHistory, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectRegisterErrorState, selectIsLoadingState } from '../../core/selectors/auth';
 import { checkCorrectName } from './checker';
-import { register } from '../../core/services/auth';
+import { register } from '../../core/thunks/auth';
 import './styles.css';
-import { registerError, register as registerStart, registerSuccess } from '../../core/actions/authActions';
 
 const Register = (): JSX.Element => {
   const history = useHistory();
+  const errorState = useSelector(selectRegisterErrorState);
+  const isLoadingState = useSelector(selectIsLoadingState);
   const dispatch = useDispatch();
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -20,6 +22,12 @@ const Register = (): JSX.Element => {
   const [birthday, setBirthday] = useState<string>('');
   const [birthError, setBirthError] = useState<boolean>(false);
   const [regError, setRegError] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    setRegError(errorState);
+    setIsLoading(isLoadingState);
+  }, [errorState, isLoadingState]);
 
   const onEmailChange = useCallback(({ target: { value } }) => {
     setEmail(value);
@@ -54,30 +62,12 @@ const Register = (): JSX.Element => {
 
   const handleRegister = useCallback(() => {
     setRegError('');
-    if (password !== rpassword) {
-      setRegError('Пароли не совпадают.');
-    }
-    if (name.length === 0) {
-      setNameError('Введите свое Имя.');
-    }
-    if (secondName.length === 0) {
-      setSecondName('Введите свою Фамилию.');
-    }
-    if (birthday.length === 0) {
-      setBirthError(true);
-    }
-
+    setRegError(password !== rpassword ? 'Пароли не совпадают.' : '');
+    setNameError(name.length === 0 ? 'Введите свое Имя.' : '');
+    setsecondNameError(secondName.length === 0 ? 'Введите свою Фамилию.' : '');
+    setBirthError(birthday.length === 0);
     if (!nameError && !secondNameError && !birthError && password === rpassword) {
-      dispatch(registerStart());
-      register(email, password, name, secondName, birthday)
-        .then(() => {
-          dispatch(registerSuccess());
-          history.push('/');
-        })
-        .catch((error) => {
-          dispatch(registerError());
-          setRegError(error.message);
-        });
+      dispatch(register(email, password, name, secondName, birthday, history));
     }
   }, [
     email,
@@ -96,6 +86,11 @@ const Register = (): JSX.Element => {
   return (
     <div className="container">
       <h1>Registration</h1>
+      {isLoading ? (
+        <div className="loader">
+          <CircularProgress color="secondary" size="6rem" />
+        </div>
+      ) : null}
       <TextField
         id="standard-name"
         label="Эл. почта"

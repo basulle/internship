@@ -16,11 +16,36 @@
 }
 
 .info {
+  display: flex;
   margin-top: 25px;
   flex-direction: column;
   margin-bottom: 25px;
+  background-color: #ffe4c4;
+  width: 500px;
+  height: 330px;
+  border: 1px solid black;
 }
 
 .info div {
   margin-top: 15px;
+}
+
+.loader {
+  position: fixed;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100px;
+  height: 200px;
+}
+
+.infoRow {
+  margin-left: 50px;
+}
+
+.info h4 {
+  font-size: 15px;
+  margin: 0;
 }

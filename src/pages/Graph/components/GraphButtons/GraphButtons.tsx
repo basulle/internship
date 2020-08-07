@@ -2,9 +2,9 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Button, Select, MenuItem } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { graphs } from '../../../../core/selectors/graph';
+import { selectGraphsState } from '../../../../core/selectors/graph';
 import { Props } from './types';
-import { saveGraph, deleteGraph } from '../../../../core/thunks/graph';
+import { saveGraph, deleteGraph, createGraph } from '../../../../core/thunks/graph';
 
 const GraphButtons = ({
   points,
@@ -15,46 +15,22 @@ const GraphButtons = ({
   selectedAlgorithm,
   setControlButton,
   controlButton,
+  setAlgorithmResult,
 }: Props): JSX.Element => {
   const dispatch = useDispatch();
-  const state = useSelector(graphs);
+  const state = useSelector(selectGraphsState);
   const [keys, setKeys] = useState<string[]>([]);
 
   useEffect(() => {
     setKeys([...Object.keys(state)]);
   }, [state]);
 
-  const handleMove = useCallback(() => {
-    if (controlButton === 'move') {
-      setControlButton('');
-    } else {
-      setControlButton('move');
-    }
-  }, [setControlButton, controlButton]);
-
-  const handleDraw = useCallback(() => {
-    if (controlButton === 'draw') {
-      setControlButton('');
-    } else {
-      setControlButton('draw');
-    }
-  }, [setControlButton, controlButton]);
-
-  const handleDelete = useCallback(() => {
-    if (controlButton === 'delete') {
-      setControlButton('');
-    } else {
-      setControlButton('delete');
-    }
-  }, [setControlButton, controlButton]);
-
-  const handleConnect = useCallback(() => {
-    if (controlButton === 'connect') {
-      setControlButton('');
-    } else {
-      setControlButton('connect');
-    }
-  }, [setControlButton, controlButton]);
+  const handleClick = useCallback(
+    (action: string) => () => {
+      setControlButton(controlButton !== action ? action : '');
+    },
+    [setControlButton, controlButton]
+  );
 
   const handleChange = useCallback(
     (event) => {
@@ -65,14 +41,20 @@ const GraphButtons = ({
 
   const handleAlgorithmChange = useCallback(
     (event) => {
+      setAlgorithmResult([]);
       setAlgorithm(event.target.value);
     },
-    [setAlgorithm]
+    [setAlgorithm, setAlgorithmResult]
   );
 
   const handleSaveGraph = useCallback(() => {
     if (points.length > 0 && lines.length > 0) {
-      dispatch(saveGraph(points, lines, selectedGraph));
+      if (selectedGraph === 'new') {
+        dispatch(createGraph(points, lines));
+      }
+      if (selectedGraph !== 'new') {
+        dispatch(saveGraph(points, lines, selectedGraph));
+      }
     }
   }, [dispatch, points, lines, selectedGraph]);
 
@@ -82,16 +64,32 @@ const GraphButtons = ({
 
   return (
     <div className="controller">
-      <Button variant="outlined" onClick={handleMove} color={controlButton === 'move' ? 'primary' : 'secondary'}>
+      <Button
+        variant="outlined"
+        onClick={handleClick('move')}
+        color={controlButton === 'move' ? 'primary' : 'secondary'}
+      >
         Move
       </Button>
-      <Button variant="outlined" onClick={handleDraw} color={controlButton === 'draw' ? 'primary' : 'secondary'}>
+      <Button
+        variant="outlined"
+        onClick={handleClick('draw')}
+        color={controlButton === 'draw' ? 'primary' : 'secondary'}
+      >
         Add
       </Button>
-      <Button variant="outlined" onClick={handleDelete} color={controlButton === 'delete' ? 'primary' : 'secondary'}>
+      <Button
+        variant="outlined"
+        onClick={handleClick('delete')}
+        color={controlButton === 'delete' ? 'primary' : 'secondary'}
+      >
         Delete
       </Button>
-      <Button variant="outlined" onClick={handleConnect} color={controlButton === 'connect' ? 'primary' : 'secondary'}>
+      <Button
+        variant="outlined"
+        onClick={handleClick('connect')}
+        color={controlButton === 'connect' ? 'primary' : 'secondary'}
+      >
         Connect
       </Button>
       <button type="button" onClick={handleSaveGraph}>

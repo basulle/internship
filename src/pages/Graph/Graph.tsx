@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import firebase from 'firebase';
+import { CircularProgress } from '@material-ui/core';
 import { Mouse } from '../../core/interfaces/mouse';
 import { Point } from '../../core/interfaces/point';
 import { Line } from '../../core/interfaces/line';
 import { findPoint } from '../../core/helpers/findPoint';
 import GraphButtons from './components/GraphButtons/GraphButtons';
-import { graphs } from '../../core/selectors/graph';
+import { selectGraphsState, selectIsLoadingState } from '../../core/selectors/graph';
 import { bfs, dfs, linesToAdjacencyMatrix } from './algorithms';
 import { downloadGraphs } from '../../core/thunks/graph';
 import { drawCircle, drawLine } from '../../core/helpers/canvas';
@@ -17,7 +18,8 @@ const Graph = (): JSX.Element => {
   const [points, setPoints] = useState<Point[]>([]);
   const [lines, setLines] = useState<Line[]>([]);
   const dispatch = useDispatch();
-  const allGraphs = useSelector(graphs);
+  const allGraphs = useSelector(selectGraphsState);
+  const isLoadingState = useSelector(selectIsLoadingState);
   const [algorithm, setAlgorithm] = useState<string>('algorithm');
   const [counter, setCounter] = useState<number>(points.length);
   const [selectedGraph, setSelectedGraph] = useState<string>('new');
@@ -25,6 +27,12 @@ const Graph = (): JSX.Element => {
   const [movingCircle, setMovingCircle] = useState<Point>({ x: 0, y: 0, id: -1 });
   const [controlButton, setControlButton] = useState<string>('move');
   const [algorithmResult, setAlgorithmResult] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [mouseDown, setMouseDown] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsLoading(isLoadingState);
+  }, [isLoadingState]);
 
   useEffect(() => {
     const user = firebase.auth().currentUser;
@@ -32,7 +40,7 @@ const Graph = (): JSX.Element => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (selectedGraph.length > 4) {
+    if (selectedGraph !== 'new') {
       setPoints(allGraphs[selectedGraph].points);
       setLines(allGraphs[selectedGraph].lines);
       setCounter(allGraphs[selectedGraph].points.length + 1);
@@ -46,38 +54,61 @@ const Graph = (): JSX.Element => {
   useEffect(() => {
     const context = canvasRef.current.getContext('2d');
     context.clearRect(0, 0, 1000, 700);
-    points.forEach((i) => {
-      drawCircle(i.x, i.y, 20, 0, Math.PI * 2, i.id, canvasRef);
+    points.forEach((point) => {
+      if (movingCircle.id === point.id) {
+        drawCircle(point.x, point.y, 20, 0, Math.PI * 2, point.id, canvasRef, '#00FFBB');
+      } else {
+        drawCircle(point.x, point.y, 20, 0, Math.PI * 2, point.id, canvasRef, '#fc0');
+      }
     });
-    lines.forEach((line) => {
-      drawLine(findPoint(points, line.id1), findPoint(points, line.id2), canvasRef);
-    });
-  }, [points, lines]);
 
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    lines.forEach((line) => {
+      drawLine(findPoint(points, line.id1), findPoint(points, line.id2), canvasRef, '#fc0');
+    });
+  }, [points, lines, movingCircle, algorithmResult]);
+
+  const handleAddCircle = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     if (controlButton === 'draw') {
-      drawCircle(x, y, 20, 0, Math.PI * 2, counter, canvasRef);
+      drawCircle(x, y, 20, 0, Math.PI * 2, counter, canvasRef, '#fc0');
       setPoints([...points, { x, y, id: counter }]);
       setCounter(counter + 1);
     }
   };
 
-  const handleMouseMove = useCallback((e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  }, []);
+  const handleMouseMove = useCallback(
+    (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      if (controlButton === 'move' && mouseDown) {
+        setPoints(
+          points.map((point) => {
+            if (point.id === movingCircle.id) {
+              return {
+                x: mouse.x,
+                y: mouse.y,
+                id: point.id,
+              };
+            }
+            return point;
+          })
+        );
+      }
+    },
+    [mouse, points, movingCircle, controlButton, mouseDown]
+  );
 
   const handleMouseDown = useCallback(() => {
+    setMouseDown(true);
     points.forEach((item) => {
       if (Math.pow(mouse.x - item.x, 2) + Math.pow(mouse.y - item.y, 2) <= 200) {
         if (controlButton === 'connect') {
           if (movingCircle.id < 0) {
             setMovingCircle({ x: item.x, y: item.y, id: item.id });
           } else {
-            drawLine(movingCircle, { x: item.x, y: item.y, id: item.id }, canvasRef);
+            drawLine(movingCircle, { x: item.x, y: item.y, id: item.id }, canvasRef, '#fc0');
             if (movingCircle.id < item.id) {
               setLines([...lines, { id1: movingCircle.id, id2: item.id }]);
             } else {
@@ -95,19 +126,8 @@ const Graph = (): JSX.Element => {
   }, [mouse, points, movingCircle, lines, controlButton]);
 
   const handleMouseUp = useCallback(() => {
+    setMouseDown(false);
     if (controlButton === 'move') {
-      setPoints(
-        points.map((point) => {
-          if (point.id === movingCircle.id) {
-            return {
-              x: mouse.x,
-              y: mouse.y,
-              id: point.id,
-            };
-          }
-          return point;
-        })
-      );
       setMovingCircle({ x: 0, y: 0, id: -1 });
     }
     if (controlButton === 'delete') {
@@ -127,7 +147,7 @@ const Graph = (): JSX.Element => {
         }
       });
     }
-  }, [mouse, points, movingCircle, lines, controlButton]);
+  }, [mouse, points, lines, controlButton]);
 
   const handleAlgoritmStart = useCallback(() => {
     const matrix = linesToAdjacencyMatrix(points, lines);
@@ -144,6 +164,11 @@ const Graph = (): JSX.Element => {
   return (
     <div className="container">
       <h1>Graphs</h1>
+      {isLoading ? (
+        <div className="loader">
+          <CircularProgress color="secondary" size="6rem" />
+        </div>
+      ) : null}
       <GraphButtons
         points={points}
         lines={lines}
@@ -153,8 +178,9 @@ const Graph = (): JSX.Element => {
         selectedAlgorithm={algorithm}
         setControlButton={setControlButton}
         controlButton={controlButton}
+        setAlgorithmResult={setAlgorithmResult}
       />
-      {algorithm.length < 7 ? (
+      {algorithm !== 'algorithm' ? (
         <button type="button" onClick={handleAlgoritmStart}>
           Start the algorithm!
         </button>
@@ -164,7 +190,7 @@ const Graph = (): JSX.Element => {
         ref={canvasRef}
         width="1000px"
         height="700px"
-        onClick={handleClick}
+        onClick={handleAddCircle}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
