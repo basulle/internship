@@ -1,5 +1,5 @@
 import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
-import { Input, CircularProgress } from '@material-ui/core';
+import { Input, CircularProgress, Button } from '@material-ui/core';
 import './styles.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
@@ -74,60 +74,70 @@ const Home = (): JSX.Element => {
   }, [image, dispatch]);
 
   return (
-    <div className="container">
-      <h1>Home Page</h1>
+    <div className="home-container">
+      <h1 className="title">Home Page</h1>
+      <div className="to-graphs">
+        <Link to="/graphs" style={{ textDecoration: 'none' }}>
+          <img src="https://img.icons8.com/flat_round/32/000000/right--v1.png" alt="arrow" />
+        </Link>
+      </div>
       {isLoading ? (
         <div className="loader">
-          <CircularProgress color="secondary" size="6rem" />
+          <CircularProgress color="primary" size="6rem" />
         </div>
       ) : null}
-      <div>
-        <img
-          alt="logo"
-          className="logo"
-          src={
-            image ||
-            avatar ||
-            'https://www.clipartmax.com/png/full/103-1038980_bankers-and-professionals-meeting-regularly-for-luncheon-user-flat-icon-png.png'
-          }
-        />
-      </div>
-      {uploaded ? (
-        <button type="button" onClick={handleUploadPhoto}>
-          upload photo
-        </button>
-      ) : (
-        <input type="file" onChange={selectPhoto} accept="image/*" />
-      )}
       <div className="info">
-        <div className="infoRow">
-          <h4>Email:</h4> <Input value={email} disabled inputProps={{ 'aria-label': 'description' }} />
+        <div className="left-info">
+          <div> 
+            <img
+              alt="logo"
+              className="logo"
+              src={
+              image ||
+              avatar ||
+              'https://www.clipartmax.com/png/full/103-1038980_bankers-and-professionals-meeting-regularly-for-luncheon-user-flat-icon-png.png'
+            }
+            />
+          </div>
+          {uploaded ? (
+            <button type="button" onClick={handleUploadPhoto}>
+              upload photo
+            </button>
+          ) : (
+            <input type="file" onChange={selectPhoto} accept="image/*" />
+          )}
         </div>
-        <div className="infoRow">
-          <h4>Name:</h4>
-          <Input value={name} inputProps={{ 'aria-label': 'description' }} onChange={onNameChange} />
-          <button type="button" onClick={handleChangeName}>
-            <img src="https://img.icons8.com/ultraviolet/20/000000/edit-property.png" alt="Name" />
-          </button>
-        </div>
-        <div className="infoRow">
-          <h4>Second Name:</h4>
-          <Input value={secondName} inputProps={{ 'aria-label': 'description' }} onChange={onSecondNameChange} />
-          <button type="button" onClick={handleChangeSecondName}>
-            <img src="https://img.icons8.com/ultraviolet/20/000000/edit-property.png" alt="SecondName" />
-          </button>
-        </div>
-        <div className="infoRow">
-          <h4>Birthday:</h4> <Input value={birthday} disabled inputProps={{ 'aria-label': 'description' }} />
+        <div className="right-info">
+          <div className="infoRow">
+            <h4>Email:</h4> <Input value={email} disabled inputProps={{ 'aria-label': 'description' }} />
+          </div>
+          <div className="infoRow">
+            <h4>Name:</h4>
+            <Input value={name} inputProps={{ 'aria-label': 'description' }} onChange={onNameChange} />
+            <button type="button" onClick={handleChangeName}>
+              <img src="https://img.icons8.com/ultraviolet/20/000000/edit-property.png" alt="Name" />
+            </button>
+          </div>
+          <div className="infoRow">
+            <h4>Second Name:</h4>
+            <Input value={secondName} inputProps={{ 'aria-label': 'description' }} onChange={onSecondNameChange} />
+            <button type="button" onClick={handleChangeSecondName}>
+              <img src="https://img.icons8.com/ultraviolet/20/000000/edit-property.png" alt="SecondName" />
+            </button>
+          </div>
+          <div className="infoRow">
+            <h4>Birthday:</h4> <Input value={birthday} disabled inputProps={{ 'aria-label': 'description' }} />
+          </div>
         </div>
       </div>
       <div>
-        <button type="button" onClick={handleSignOut}>
-          Exit
-        </button>
-        <Link to="/graphs" style={{ textDecoration: 'none' }}>
-          <button type="button">Graphs</button>
-        </Link>
+        <Button
+          variant="outlined"
+          onClick={handleSignOut}
+          color="secondary"
+        >
+          Logout
+        </Button>
       </div>
     </div>
   );

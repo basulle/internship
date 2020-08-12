@@ -7,6 +7,7 @@ import Login from './pages/Login/Login';
 import Confirm from './pages/Confirm/Confirm';
 import Home from './pages/Home/Home';
 import Graph from './pages/Graph/Graph';
+import Gallery from './pages/Gallery/Gallery';
 
 const App = (): JSX.Element => {
   const [user, setUser] = useState<boolean>(false);
@@ -29,6 +30,7 @@ const App = (): JSX.Element => {
       <Switch>
         {user && <Route path="/home" component={Home} />}
         {user && <Route path="/graphs" component={Graph} />}
+        {user && <Route path="/gallery" component={Gallery} />}
         <Route exact path="/" component={AppLoading} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />

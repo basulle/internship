@@ -1,9 +1,58 @@
 canvas {
-  border: 1px dashed black;
+  border: 1px solid #fdd05a;
+  border-right: 3px solid #fdd05a;
 }
 
 .controller {
   display: flex;
-  flex-direction: row;
+  align-items: center;
+  flex-direction: column;
   margin-bottom: 15px;
+  width: 100%;
+}
+
+.graph-container{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background-color: #24283d;
+}
+
+.buttons-row{
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 2px;
+}
+
+.to-home{
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.to-gallery{
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.navigation{
+  display: flex;
+  flex-direction: row;
+  width: calc(50% + 25px);
+}
+
+.canvas-list{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.graph-selector{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: aliceblue;
+  width: 200px;
+  height: 700px;
 }

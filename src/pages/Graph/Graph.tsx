@@ -162,11 +162,11 @@ const Graph = (): JSX.Element => {
   }, [lines, points, algorithm]);
 
   return (
-    <div className="container">
-      <h1>Graphs</h1>
+    <div className="graph-container">
+      <h1 className="title">Graphs</h1>
       {isLoading ? (
         <div className="loader">
-          <CircularProgress color="secondary" size="6rem" />
+          <CircularProgress color="primary" size="6rem" />
         </div>
       ) : null}
       <GraphButtons
@@ -185,16 +185,22 @@ const Graph = (): JSX.Element => {
           Start the algorithm!
         </button>
       ) : null}
-      {algorithmResult}
-      <canvas
-        ref={canvasRef}
-        width="1000px"
-        height="700px"
-        onClick={handleAddCircle}
-        onMouseMove={handleMouseMove}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-      />
+      {algorithmResult.length > 0 ? <h4 style={{ color: 'white', margin: 0 }}>{algorithmResult.map((item) => `${item} `)}</h4> : null}
+      <div className="canvas-list">
+        <canvas
+          ref={canvasRef}
+          width="1000px"
+          height="700px"
+          onClick={handleAddCircle}
+          onMouseMove={handleMouseMove}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+        />
+        <div className="graph-selector">
+          No saved graphs.
+        </div>
+      </div>
+      <div>___</div>
     </div>
   );
 };

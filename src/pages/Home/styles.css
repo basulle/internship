@@ -1,3 +1,11 @@
+.home-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #24283d;
+}
+
 .logo {
   width: 200px;
   height: 200px;
@@ -18,13 +26,24 @@
 .info {
   display: flex;
   margin-top: 25px;
-  flex-direction: column;
+  flex-direction: row;
   margin-bottom: 25px;
-  background-color: #ffe4c4;
-  width: 500px;
-  height: 330px;
-  border: 1px solid black;
+  background-color: white;
+  min-width: 50%;
+  height: 450px;
+  align-items: center;
+  justify-content: center;
+  background-image: url('https://policyviz.com/wp-content/uploads/2018/04/3waystoannotate-header-1140x600.jpg');
+  background-size: cover;
+  box-shadow: 2px 2px 2px red;
+  border-radius: 2px;
 }
+
+.left-info{
+  border-right: 1px solid black;
+  height: 300px;
+}
+
 
 .info div {
   margin-top: 15px;
@@ -33,6 +52,7 @@
 .loader {
   position: fixed;
   margin: auto;
+  z-index: 999;
   top: 0;
   left: 0;
   bottom: 0;
@@ -43,9 +63,25 @@
 
 .infoRow {
   margin-left: 50px;
+  display: flex;
+  flex-direction: row;
+}
+
+.infoRow div {
+  margin: 0;
 }
 
 .info h4 {
   font-size: 15px;
-  margin: 0;
+  margin: 10px; 
+}
+
+.title{
+  color: #fdd05a;
+}
+
+.to-graphs{
+  display: flex;
+  justify-content: flex-end;
+  width: 50%;
 }

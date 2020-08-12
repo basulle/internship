@@ -64,37 +64,55 @@ const GraphButtons = ({
 
   return (
     <div className="controller">
+      <div className="navigation">
+        <div className="to-home">
+          <Link to="/home" style={{ textDecoration: 'none' }}>
+            <img src="https://img.icons8.com/flat_round/32/000000/left--v1.png" alt="arrow" />
+          </Link>
+        </div>
+        <div className="to-gallery">
+          <Link to="/gallery" style={{ textDecoration: 'none' }}>
+            <img src="https://img.icons8.com/flat_round/32/000000/right--v1.png" alt="arrow" />
+          </Link>
+        </div>
+      </div>
+      <div className="buttons-row">
+        <Button
+          variant="outlined"
+          onClick={handleClick('move')}
+          color={controlButton === 'move' ? 'primary' : 'secondary'}
+        >
+          Move
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleClick('draw')}
+          color={controlButton === 'draw' ? 'primary' : 'secondary'}
+        >
+          Add
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleClick('delete')}
+          color={controlButton === 'delete' ? 'primary' : 'secondary'}
+        >
+          Delete
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleClick('connect')}
+          color={controlButton === 'connect' ? 'primary' : 'secondary'}
+        >
+          Connect
+        </Button>
+      </div>
       <Button
         variant="outlined"
-        onClick={handleClick('move')}
-        color={controlButton === 'move' ? 'primary' : 'secondary'}
+        onClick={handleSaveGraph}
+        color="primary"
       >
-        Move
+        Save Graph
       </Button>
-      <Button
-        variant="outlined"
-        onClick={handleClick('draw')}
-        color={controlButton === 'draw' ? 'primary' : 'secondary'}
-      >
-        Add
-      </Button>
-      <Button
-        variant="outlined"
-        onClick={handleClick('delete')}
-        color={controlButton === 'delete' ? 'primary' : 'secondary'}
-      >
-        Delete
-      </Button>
-      <Button
-        variant="outlined"
-        onClick={handleClick('connect')}
-        color={controlButton === 'connect' ? 'primary' : 'secondary'}
-      >
-        Connect
-      </Button>
-      <button type="button" onClick={handleSaveGraph}>
-        save graph
-      </button>
       <Select labelId="demo-simple-select-label" id="demo-simple-select" value={selectedGraph} onChange={handleChange}>
         <MenuItem value="new">New graph</MenuItem>
         {keys.map((key, index) => (
@@ -104,9 +122,13 @@ const GraphButtons = ({
         ))}
       </Select>
       {selectedGraph !== 'new' ? (
-        <button type="button" onClick={handleDeleteGraph}>
-          delete graph
-        </button>
+        <Button
+          variant="outlined"
+          onClick={handleDeleteGraph}
+          color="secondary"
+        >
+          Delete Graph
+        </Button>
       ) : null}
       <Select
         labelId="demo-simple-select-label"
@@ -118,9 +140,6 @@ const GraphButtons = ({
         <MenuItem value="bfs">bfs</MenuItem>
         <MenuItem value="dfs">dfs</MenuItem>
       </Select>
-      <Link to="/home" style={{ textDecoration: 'none' }}>
-        <button type="button">Home</button>
-      </Link>
     </div>
   );
 };
