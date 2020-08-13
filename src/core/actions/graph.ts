@@ -17,6 +17,10 @@ export enum GraphActionTypes {
   DELETE_GRAPH = '[Graph] DELETE_GRAPH',
   SUCCESS_DELETE_GRAPH = '[Graph] SUCCESS_DELETE_GRAPH',
   ERROR_DELETE_GRAPH = '[Graph] ERROR_DELETE_GRAPH',
+
+  ADD_TO_GALLERY_GRAPH = '[Graph] ADD_TO_GALLERY_GRAPH',
+  SUCCESS_ADD_TO_GALLERY_GRAPH = '[Graph] SUCCESS_ADD_TO_GALLERY_GRAPH',
+  ERROR_ADD_TO_GALLERY_GRAPH = '[Graph] ERROR_ADD_TO_GALLERY_GRAPH',
 }
 
 export const initGraphAction = createAction(GraphActionTypes.INIT_GRAPH);
@@ -43,3 +47,7 @@ export const successDeleteGraphAction = createAction(
   (payload: { id: string }) => payload
 );
 export const errorDeleteGraphAction = createAction(GraphActionTypes.ERROR_DELETE_GRAPH);
+
+export const AddtoGalleryGraphAction = createAction(GraphActionTypes.ADD_TO_GALLERY_GRAPH);
+export const successAddToGalleryGraphAction = createAction(GraphActionTypes.SUCCESS_ADD_TO_GALLERY_GRAPH);
+export const errorAddToGalleryGraphAction = createAction(GraphActionTypes.ERROR_ADD_TO_GALLERY_GRAPH);

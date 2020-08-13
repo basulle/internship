@@ -29,10 +29,9 @@ export const drawLine = (p1: Point, p2: Point, canvasRef: React.MutableRefObject
   const context = canvasRef.current.getContext('2d');
   context.globalCompositeOperation = 'destination-over';
   context.strokeStyle = color;
-  // context.fillStyle = color;
   context.beginPath();
   context.moveTo(p1.x, p1.y);
   context.lineTo(p2.x, p2.y);
-  context.lineWidth = 3;
+  context.lineWidth = 5;
   context.stroke();
 };

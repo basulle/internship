@@ -1,0 +1,27 @@
+.graph-item {
+  background-color: lightgray;
+  width: 100%;
+  display: flex;
+  border-bottom: 1px solid white;
+  flex-direction: column;
+  align-items: center;
+}
+
+.selected {
+  background-color: #fdd05a;
+}
+
+.graph-item:hover {
+  background-color: #fdd05a;
+  cursor: pointer;
+}
+
+.graph-item-buttons {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.graph-item-buttons img:hover {
+  background-color: white;
+}

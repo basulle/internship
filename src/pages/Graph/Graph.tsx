@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import firebase from 'firebase';
 import { CircularProgress } from '@material-ui/core';
 import { Mouse } from '../../core/interfaces/mouse';
 import { Point } from '../../core/interfaces/point';
@@ -11,6 +10,7 @@ import { selectGraphsState, selectIsLoadingState } from '../../core/selectors/gr
 import { bfs, dfs, linesToAdjacencyMatrix } from './algorithms';
 import { downloadGraphs } from '../../core/thunks/graph';
 import { drawCircle, drawLine } from '../../core/helpers/canvas';
+import GraphItem from './components/GraphItem/GraphItem';
 import './styles.css';
 
 const Graph = (): JSX.Element => {
@@ -35,8 +35,7 @@ const Graph = (): JSX.Element => {
   }, [isLoadingState]);
 
   useEffect(() => {
-    const user = firebase.auth().currentUser;
-    dispatch(downloadGraphs(user.uid));
+    dispatch(downloadGraphs());
   }, [dispatch]);
 
   useEffect(() => {
@@ -179,13 +178,18 @@ const Graph = (): JSX.Element => {
         setControlButton={setControlButton}
         controlButton={controlButton}
         setAlgorithmResult={setAlgorithmResult}
+        canvas={canvasRef}
       />
-      {algorithm !== 'algorithm' ? (
-        <button type="button" onClick={handleAlgoritmStart}>
-          Start the algorithm!
-        </button>
-      ) : null}
-      {algorithmResult.length > 0 ? <h4 style={{ color: 'white', margin: 0 }}>{algorithmResult.map((item) => `${item} `)}</h4> : null}
+      <div style={{ flexDirection: 'row', display: 'flex' }}>
+        {algorithm !== 'algorithm' ? (
+          <button type="button" onClick={handleAlgoritmStart}>
+            Start the algorithm!
+          </button>
+        ) : null}
+        {algorithmResult.length > 0 ? (
+          <h4 style={{ color: 'white', margin: 0 }}>{algorithmResult.map((item) => `${item} `)}</h4>
+        ) : null}
+      </div>
       <div className="canvas-list">
         <canvas
           ref={canvasRef}
@@ -197,10 +201,24 @@ const Graph = (): JSX.Element => {
           onMouseUp={handleMouseUp}
         />
         <div className="graph-selector">
-          No saved graphs.
+          <GraphItem
+            key="new"
+            index={0}
+            value="new"
+            setSelectedGraph={setSelectedGraph}
+            selectedGraph={selectedGraph}
+          />
+          {Object.keys(allGraphs).map((key, index) => (
+            <GraphItem
+              key={key}
+              index={index + 1}
+              value={key}
+              setSelectedGraph={setSelectedGraph}
+              selectedGraph={selectedGraph}
+            />
+          ))}
         </div>
       </div>
-      <div>___</div>
     </div>
   );
 };

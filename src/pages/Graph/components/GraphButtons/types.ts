@@ -11,4 +11,5 @@ export interface Props {
   setControlButton: React.Dispatch<React.SetStateAction<string>>;
   controlButton: string;
   setAlgorithmResult: React.Dispatch<React.SetStateAction<number[]>>;
+  canvas: React.MutableRefObject<HTMLCanvasElement>;
 }

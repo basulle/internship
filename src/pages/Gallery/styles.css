@@ -1,7 +1,11 @@
 .gallery-container {
-    display: flex;
-    align-items: center;
-    background-color: #24283d;
-    height: 100vh;
-    flex-direction: column;
-  }
+  display: flex;
+  align-items: center;
+  background-color: #24283d;
+  height: 100vh;
+  flex-direction: column;
+}
+
+.gallery-navigation {
+  width: 50%;
+}
