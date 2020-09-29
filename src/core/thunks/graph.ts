@@ -34,7 +34,7 @@ export function downloadGraphs() {
 export function saveGraph(points: Point[], lines: Line[], id: string, graphName: string, graphUrl: string) {
   return (dispatch: Dispatch) => {
     dispatch(saveGraphAction());
-    GraphService.saveGraph(points, lines, id).then(
+    GraphService.saveGraph(points, lines, id, graphName, graphUrl).then(
       () => {
         dispatch(successSaveGraphAction());
       },
@@ -45,12 +45,12 @@ export function saveGraph(points: Point[], lines: Line[], id: string, graphName:
   };
 }
 
-export function createGraph(points: Point[], lines: Line[], graphName: string, graphUrl: string) {
+export function createGraph(points: Point[], lines: Line[], graphName: string, url: string) {
   return (dispatch: Dispatch) => {
     dispatch(createGraphAction());
-    GraphService.createGraph(points, lines, graphName, graphUrl)
+    GraphService.createGraph(points, lines, graphName, url)
       .then((response) => {
-        dispatch(successCreateGraphAction({ graph: { lines, points }, id: response.key }));
+        dispatch(successCreateGraphAction({ graph: { lines, points, graphName, url }, id: response.key }));
       })
       .catch(() => errorCreateGraphAction());
   };

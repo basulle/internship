@@ -25,3 +25,18 @@
 .graph-item-buttons img:hover {
   background-color: white;
 }
+
+.graph-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  height: 70px;
+  width: 100%;
+}
+
+.graph-info img {
+  width: 50px;
+  height: 50px;
+  margin-right: 5px;
+}

@@ -3,4 +3,6 @@ export interface Props {
   value: string;
   setSelectedGraph: React.Dispatch<React.SetStateAction<string>>;
   selectedGraph: string;
+  selectedGraphName: string;
+  selectedGraphUrl: string;
 }

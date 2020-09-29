@@ -40,8 +40,9 @@ const Graph = (): JSX.Element => {
 
   useEffect(() => {
     if (selectedGraph !== 'new') {
-      setPoints(allGraphs[selectedGraph].points);
-      setLines(allGraphs[selectedGraph].lines);
+      const graph = allGraphs[selectedGraph];
+      setPoints(graph.points);
+      setLines(graph.lines);
       setCounter(allGraphs[selectedGraph].points.length + 1);
     } else {
       setPoints([]);
@@ -207,6 +208,8 @@ const Graph = (): JSX.Element => {
             value="new"
             setSelectedGraph={setSelectedGraph}
             selectedGraph={selectedGraph}
+            selectedGraphName=""
+            selectedGraphUrl=""
           />
           {Object.keys(allGraphs).map((key, index) => (
             <GraphItem
@@ -215,6 +218,8 @@ const Graph = (): JSX.Element => {
               value={key}
               setSelectedGraph={setSelectedGraph}
               selectedGraph={selectedGraph}
+              selectedGraphName={allGraphs[key].graphName}
+              selectedGraphUrl={allGraphs[key].url}
             />
           ))}
         </div>

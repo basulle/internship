@@ -2,12 +2,23 @@ import firebase from 'firebase';
 import { Point } from '../interfaces/point';
 import { Line } from '../interfaces/line';
 
-export const saveGraph = (points: Point[], lines: Line[], id: string) => {
+export const saveGraph = async (points: Point[], lines: Line[], id: string, graphName: string, graphUrl: string) => {
   const user = firebase.auth().currentUser;
-  return firebase.database().ref().child('users').child(user.uid).child('graphs').child(id).set({
-    points,
-    lines,
-  });
+  const storage = firebase.storage().ref().child('graphs');
+  const database = firebase.database().ref().child('users').child(user.uid).child('graphs');
+  const response = await fetch(graphUrl);
+  const blob = await response.blob();
+  return storage
+    .child(id)
+    .put(blob)
+    .then(() => {
+      storage
+        .child(id)
+        .getDownloadURL()
+        .then((url) => {
+          database.child(id).set({ points, lines, graphName, url });
+        });
+    });
 };
 
 export const createGraph = async (points: Point[], lines: Line[], graphName: string, graphUrl: string) => {
@@ -49,7 +60,17 @@ export const downloadGraphs = () => {
 
 export const deleteGraph = (id: string) => {
   const user = firebase.auth().currentUser;
-  return firebase.database().ref().child('users').child(user.uid).child('graphs').child(id).remove();
+  return firebase
+    .database()
+    .ref()
+    .child('users')
+    .child(user.uid)
+    .child('graphs')
+    .child(id)
+    .remove()
+    .then(() => {
+      firebase.storage().ref().child('graphs').child(id).delete();
+    });
 };
 
 export const addToGallery = (id: string) => {
